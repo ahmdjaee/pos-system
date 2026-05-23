@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'deployment' => [
+        'setup_token' => env('DEPLOYMENT_SETUP_TOKEN'),
+    ],
+
 ];

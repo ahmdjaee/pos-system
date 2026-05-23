@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeploymentSetupController;
 use App\Http\Controllers\DiningTableController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PosController;
@@ -13,6 +14,8 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+
+Route::get('deployment/setup/{token}', DeploymentSetupController::class)->name('deployment.setup');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
