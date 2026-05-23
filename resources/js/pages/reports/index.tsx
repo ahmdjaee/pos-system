@@ -28,9 +28,9 @@ export default function ReportsIndex({ filters, summary, dailySales, paymentMeth
                 title="Laporan Penjualan"
                 description="Pantau omzet, pajak, metode pembayaran, dan menu terlaris."
                 actions={
-                    <form onSubmit={filter} className="flex flex-wrap items-center gap-2">
-                        <Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="w-auto" />
-                        <Input type="date" value={to} onChange={(event) => setTo(event.target.value)} className="w-auto" />
+                    <form onSubmit={filter} className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
+                        <Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="w-full sm:w-auto" />
+                        <Input type="date" value={to} onChange={(event) => setTo(event.target.value)} className="w-full sm:w-auto" />
                         <Button type="submit" variant="secondary">
                             <Search className="size-4" />
                             Filter
@@ -81,12 +81,12 @@ export default function ReportsIndex({ filters, summary, dailySales, paymentMeth
                         </div>
                         <div className="divide-y">
                             {paymentMethods.map((row) => (
-                                <div key={row.payment_method} className="flex items-center justify-between gap-4 p-4">
+                                <div key={row.payment_method} className="grid gap-2 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
                                     <div>
                                         <p className="font-medium">{paymentLabel(row.payment_method)}</p>
                                         <p className="text-muted-foreground text-sm">{formatNumber(row.orders)} transaksi</p>
                                     </div>
-                                    <p className="font-semibold">{formatCurrency(row.total)}</p>
+                                    <p className="font-semibold sm:text-right">{formatCurrency(row.total)}</p>
                                 </div>
                             ))}
                             {paymentMethods.length === 0 && <p className="text-muted-foreground p-4 text-sm">Belum ada data pembayaran.</p>}
@@ -99,12 +99,12 @@ export default function ReportsIndex({ filters, summary, dailySales, paymentMeth
                         </div>
                         <div className="divide-y">
                             {topProducts.map((row) => (
-                                <div key={row.product_name} className="flex items-center justify-between gap-4 p-4">
+                                <div key={row.product_name} className="grid gap-2 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
                                     <div className="min-w-0">
                                         <p className="font-medium">{row.product_name}</p>
                                         <p className="text-muted-foreground text-sm">{formatNumber(row.quantity)} item</p>
                                     </div>
-                                    <p className="font-semibold">{formatCurrency(row.total)}</p>
+                                    <p className="font-semibold sm:text-right">{formatCurrency(row.total)}</p>
                                 </div>
                             ))}
                             {topProducts.length === 0 && <p className="text-muted-foreground p-4 text-sm">Belum ada menu terjual.</p>}

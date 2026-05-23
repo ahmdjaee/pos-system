@@ -2,6 +2,7 @@ import { CurrencyInput } from '@/components/currency-input';
 import { FlashMessage } from '@/components/flash-message';
 import InputError from '@/components/input-error';
 import { PageHeader } from '@/components/page-header';
+import { ResponsiveDataList, ResponsiveDataListActions, ResponsiveDataListCell, ResponsiveDataListRow } from '@/components/responsive-data-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,6 +19,15 @@ import { Edit, Plus, Tags, Trash2 } from 'lucide-react';
 import { FormEvent, ReactNode, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Produk', href: '/products' }];
+const productColumns = [
+    { label: 'Produk' },
+    { label: 'Kategori' },
+    { label: 'Harga' },
+    { label: 'Stok' },
+    { label: 'Status' },
+    { label: 'Aksi', className: 'text-right' },
+];
+const productDesktopColumns = 'minmax(200px,1.4fr) minmax(120px,1fr) 120px 130px 110px 96px';
 
 const emptyProduct = {
     category_id: '',
@@ -104,69 +114,47 @@ export default function ProductsIndex({ categories, products }: ProductsPageProp
                     </div>
                 )}
 
-                <div className="bg-card overflow-hidden rounded-lg border">
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[900px] text-sm">
-                            <thead className="bg-muted text-left">
-                                <tr>
-                                    <th className="px-4 py-3 font-medium">Produk</th>
-                                    <th className="px-4 py-3 font-medium">Kategori</th>
-                                    <th className="px-4 py-3 font-medium">Harga</th>
-                                    <th className="px-4 py-3 font-medium">Stok</th>
-                                    <th className="px-4 py-3 font-medium">Status</th>
-                                    <th className="px-4 py-3 text-right font-medium">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {products.map((product) => (
-                                    <tr key={product.id}>
-                                        <td className="px-4 py-3">
-                                            <p className="font-medium">{product.name}</p>
-                                            <p className="text-muted-foreground text-xs">{product.sku}</p>
-                                        </td>
-                                        <td className="px-4 py-3">{product.category?.name}</td>
-                                        <td className="px-4 py-3">{formatCurrency(product.price)}</td>
-                                        <td className="px-4 py-3">{product.track_stock ? `${product.stock} item` : 'Tidak dilacak'}</td>
-                                        <td className="px-4 py-3">
-                                            <Badge variant={product.is_available ? 'secondary' : 'outline'}>
-                                                {product.is_available ? 'Aktif' : 'Nonaktif'}
-                                            </Badge>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex justify-end gap-1">
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => openEditProduct(product)}
-                                                    aria-label="Edit produk"
-                                                >
-                                                    <Edit className="size-4" />
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => router.delete(`/products/${product.id}`)}
-                                                    aria-label="Hapus produk"
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {products.length === 0 && (
-                                    <tr>
-                                        <td colSpan={6} className="text-muted-foreground px-4 py-8 text-center">
-                                            Belum ada produk.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <ResponsiveDataList
+                    columns={productColumns}
+                    desktopColumns={productDesktopColumns}
+                    isEmpty={products.length === 0}
+                    emptyMessage="Belum ada produk."
+                >
+                    {products.map((product) => (
+                        <ResponsiveDataListRow key={product.id}>
+                            <div className="flex items-start justify-between gap-3 md:contents">
+                                <div className="min-w-0 md:px-4 md:py-3">
+                                    <p className="font-medium">{product.name}</p>
+                                    <p className="text-muted-foreground mt-1 text-xs md:mt-0">{product.sku}</p>
+                                </div>
+                                <Badge variant={product.is_available ? 'secondary' : 'outline'} className="shrink-0 md:order-5 md:mx-4 md:w-fit">
+                                    {product.is_available ? 'Aktif' : 'Nonaktif'}
+                                </Badge>
+                            </div>
+
+                            <ResponsiveDataListCell label="Kategori">{product.category?.name ?? '-'}</ResponsiveDataListCell>
+                            <ResponsiveDataListCell label="Harga">{formatCurrency(product.price)}</ResponsiveDataListCell>
+                            <ResponsiveDataListCell label="Stok">
+                                {product.track_stock ? `${product.stock} item` : 'Tidak dilacak'}
+                            </ResponsiveDataListCell>
+
+                            <ResponsiveDataListActions className="md:order-6">
+                                <Button type="button" variant="ghost" size="icon" onClick={() => openEditProduct(product)} aria-label="Edit produk">
+                                    <Edit className="size-4" />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => router.delete(`/products/${product.id}`)}
+                                    aria-label="Hapus produk"
+                                >
+                                    <Trash2 className="size-4" />
+                                </Button>
+                            </ResponsiveDataListActions>
+                        </ResponsiveDataListRow>
+                    ))}
+                </ResponsiveDataList>
             </div>
 
             <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>

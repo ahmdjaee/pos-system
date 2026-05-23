@@ -40,6 +40,26 @@ export interface CartLine {
     notes: string;
 }
 
+export interface PosCheckoutForm {
+    customerName: string;
+    orderType: string;
+    tableId: string;
+    discount: number;
+    paymentMethod: string;
+    paidAmount: number;
+    notes: string;
+}
+
+export type PosValidationErrors = Partial<Record<'items' | 'customer_name' | 'discount' | 'paid_amount' | 'notes', string>>;
+
+export interface PosTotals {
+    subtotal: number;
+    itemCount: number;
+    tax: number;
+    total: number;
+    change: number;
+}
+
 export interface PosPageProps {
     categories: Array<Category & { products: Product[] }>;
     tables: DiningTable[];

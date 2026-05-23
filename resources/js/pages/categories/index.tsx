@@ -1,6 +1,7 @@
 import { FlashMessage } from '@/components/flash-message';
 import InputError from '@/components/input-error';
 import { PageHeader } from '@/components/page-header';
+import { ResponsiveDataList, ResponsiveDataListActions, ResponsiveDataListCell, ResponsiveDataListRow } from '@/components/responsive-data-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,6 +16,8 @@ import { Edit, Package, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Kategori', href: '/categories' }];
+const categoryColumns = [{ label: 'Kategori' }, { label: 'Warna' }, { label: 'Produk' }, { label: 'Aksi', className: 'text-right' }];
+const categoryDesktopColumns = 'minmax(220px,1.5fr) 130px 130px 96px';
 
 const emptyCategory = {
     name: '',
@@ -78,67 +81,45 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
             <div className="flex flex-1 flex-col gap-4 p-4 sm:p-6">
                 <FlashMessage />
 
-                <div className="bg-card overflow-hidden rounded-lg border">
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[720px] text-sm">
-                            <thead className="bg-muted text-left">
-                                <tr>
-                                    <th className="px-4 py-3 font-medium">Kategori</th>
-                                    <th className="px-4 py-3 font-medium">Warna</th>
-                                    <th className="px-4 py-3 font-medium">Produk</th>
-                                    <th className="px-4 py-3 text-right font-medium">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {categories.map((category) => (
-                                    <tr key={category.id}>
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2">
-                                                <span className="size-3 rounded-full" style={{ backgroundColor: category.color }} />
-                                                <p className="font-medium">{category.name}</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <Badge variant="outline" className="font-mono">
-                                                {category.color}
-                                            </Badge>
-                                        </td>
-                                        <td className="px-4 py-3">{formatNumber(category.products_count)} produk</td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex justify-end gap-1">
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => openEdit(category)}
-                                                    aria-label="Edit kategori"
-                                                >
-                                                    <Edit className="size-4" />
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => router.delete(`/categories/${category.id}`)}
-                                                    aria-label="Hapus kategori"
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {categories.length === 0 && (
-                                    <tr>
-                                        <td colSpan={4} className="text-muted-foreground px-4 py-8 text-center">
-                                            Belum ada kategori.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <ResponsiveDataList
+                    columns={categoryColumns}
+                    desktopColumns={categoryDesktopColumns}
+                    isEmpty={categories.length === 0}
+                    emptyMessage="Belum ada kategori."
+                >
+                    {categories.map((category) => (
+                        <ResponsiveDataListRow key={category.id}>
+                            <div className="flex items-start justify-between gap-3 md:contents">
+                                <div className="flex min-w-0 items-center gap-2 md:px-4 md:py-3">
+                                    <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
+                                    <p className="font-medium">{category.name}</p>
+                                </div>
+                                <Badge variant="outline" className="shrink-0 font-mono md:order-2 md:mx-4 md:w-fit">
+                                    {category.color}
+                                </Badge>
+                            </div>
+
+                            <ResponsiveDataListCell label="Produk" className="md:order-3">
+                                {formatNumber(category.products_count)} produk
+                            </ResponsiveDataListCell>
+
+                            <ResponsiveDataListActions className="md:order-4">
+                                <Button type="button" variant="ghost" size="icon" onClick={() => openEdit(category)} aria-label="Edit kategori">
+                                    <Edit className="size-4" />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => router.delete(`/categories/${category.id}`)}
+                                    aria-label="Hapus kategori"
+                                >
+                                    <Trash2 className="size-4" />
+                                </Button>
+                            </ResponsiveDataListActions>
+                        </ResponsiveDataListRow>
+                    ))}
+                </ResponsiveDataList>
             </div>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
