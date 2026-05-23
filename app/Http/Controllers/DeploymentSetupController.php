@@ -17,19 +17,35 @@ class DeploymentSetupController extends Controller
             abort(404);
         }
 
-        $commands = [
-            ['type' => 'process', 'name' => 'composer install', 'command' => [
+        $commands = [];
+
+        if (! request()->boolean('skip_composer')) {
+            $commands[] = ['type' => 'process', 'name' => 'composer install', 'command' => [
                 'composer',
                 'install',
                 '--no-dev',
                 '--no-interaction',
                 '--prefer-dist',
                 '--optimize-autoloader',
-            ]],
-            ['type' => 'process', 'name' => 'npm run build', 'command' => ['npm', 'run', 'build']],
+            ]];
+        }
+
+        if (! request()->boolean('skip_npm')) {
+            $commands[] = ['type' => 'process', 'name' => 'npm run build', 'command' => ['npm', 'run', 'build']];
+        }
+
+        $commands = [
+            ...$commands,
             ['type' => 'artisan', 'name' => 'optimize:clear', 'parameters' => []],
             ['type' => 'artisan', 'name' => 'migrate', 'parameters' => ['--force' => true]],
-            ['type' => 'artisan', 'name' => 'storage:link', 'parameters' => ['--force' => true]],
+        ];
+
+        if (! request()->boolean('skip_storage')) {
+            $commands[] = ['type' => 'artisan', 'name' => 'storage:link', 'parameters' => ['--force' => true]];
+        }
+
+        $commands = [
+            ...$commands,
             ['type' => 'artisan', 'name' => 'config:cache', 'parameters' => []],
             ['type' => 'artisan', 'name' => 'view:cache', 'parameters' => []],
         ];
@@ -38,7 +54,13 @@ class DeploymentSetupController extends Controller
             $commands[] = ['type' => 'artisan', 'name' => 'db:seed', 'parameters' => ['--force' => true]];
         }
 
-        $results = [];
+        $results = [
+            [
+                'command' => 'php version',
+                'exit_code' => version_compare(PHP_VERSION, '8.2.0', '>=') ? 0 : 1,
+                'output' => PHP_VERSION,
+            ],
+        ];
 
         foreach ($commands as $command) {
             try {
@@ -57,6 +79,11 @@ class DeploymentSetupController extends Controller
         return response()->json([
             'ok' => collect($results)->every(fn (array $result) => $result['exit_code'] === 0),
             'seeded' => request()->boolean('seed'),
+            'skipped' => [
+                'composer' => request()->boolean('skip_composer'),
+                'npm' => request()->boolean('skip_npm'),
+                'storage' => request()->boolean('skip_storage'),
+            ],
             'results' => $results,
         ]);
     }
